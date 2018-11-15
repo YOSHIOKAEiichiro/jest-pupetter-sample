@@ -1,49 +1,34 @@
-FROM node:8.4.0
+FROM node:slim
 
-RUN apt-get update \
- && apt-get install -y \
+RUN apt-get update -y && \
+    apt-get install ca-certificates \
       gconf-service \
       libasound2 \
       libatk1.0-0 \
-      libc6 \
-      libcairo2 \
-      libcups2 \
+      libatk1.0-0 \
       libdbus-1-3 \
-      libexpat1 \
-      libfontconfig1 \
-      libgcc1 \
       libgconf-2-4 \
-      libgdk-pixbuf2.0-0 \
-      libglib2.0-0 \
       libgtk-3-0 \
       libnspr4 \
-      libpango-1.0-0 \
-      libpangocairo-1.0-0 \
-      libstdc++6 \
-      libx11-6 \
+      libnss3 \
       libx11-xcb1 \
-      libxcb1 \
-      libxcomposite1 \
-      libxcursor1 \
-      libxdamage1 \
-      libxext6 \
-      libxfixes3 \
-      libxi6 \
-      libxrandr2 \
-      libxrender1 \
       libxss1 \
       libxtst6 \
-      ca-certificates \
       fonts-liberation \
-      libappindicator1 \
-      libnss3 \
-      lsb-release \
+      libappindicator3-1 \
       xdg-utils \
-      wget
+      lsb-release \
+      wget \
+      curl \
+      xz-utils -y --no-install-recommends && \
+    wget https://dl.google.com/linux/direct/google-chrome-unstable_current_amd64.deb && \
+    dpkg -i google-chrome*.deb && \
+    apt-get install -f && \
+    apt-get clean autoclean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* google-chrome-unstable_current_amd64.deb
 
+COPY ./ /app
 WORKDIR /app
-RUN npm i puppeteer
+RUN npm install babel-core babel-jest babel-preset-env jest puppeteer jest-puppeteer
 
-COPY ./script.js .
-
-ENTRYPOINT ["node", "/app/script.js"]
+CMD ["npm", "test"]
